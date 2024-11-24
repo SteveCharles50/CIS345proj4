@@ -160,6 +160,74 @@ void faxpyCudaMULT(int N, float alpha, float* xarray, float* yarray, float* resu
 
 }
 
+
+void faxpyCudaSingle(int N, float alpha, float* xarray, float* yarray, float* resultarray) {
+
+    int totalBytes = sizeof(float) * 3 * N;
+
+    // compute number of blocks and threads per block
+    const int threadsPerBlock = 512;
+    const int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
+
+	float *d_x, *d_y, *d_result;
+
+    //
+    // TODO allocate device memory buffers on the GPU using cudaMalloc
+    //
+	cudaMalloc((void**)&d_x, sizeof(float) * N);
+	cudaMalloc((void**)&d_y, sizeof(float) * N);
+	cudaMalloc((void**)&d_result, sizeof(float) * N);
+
+    // start timing after allocation of device memory
+    double startTimeMult = currentSeconds();
+
+    //
+    // TODO copy input arrays to the GPU using cudaMemcpy
+    //
+
+	cudaMemcpy(d_x, xarray, sizeof(float) * N, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_y, yarray, sizeof(float) * N, cudaMemcpyHostToDevice);
+
+    double midTime1Mult = currentSeconds();
+
+    //
+    // TODO run kernel, either 1-block kernel or multi-block kernel
+    //
+	faxpy_1blk_kernel<<<1,threadsPerBlock>>>(N, alpha, d_x, d_y, d_result);
+    // IMPORTANT, wait for the completion at GPU
+    cudaDeviceSynchronize();
+
+    double midTime2Mult = currentSeconds();
+
+    //
+    // TODO copy result from GPU using cudaMemcpy
+    //
+	cudaMemcpy(resultarray, d_result, sizeof(float) * N, cudaMemcpyDeviceToHost);
+
+    // end timing after result has been copied back into host memory
+    double endTime = currentSeconds();
+
+    cudaError_t errCode = cudaPeekAtLastError();
+    if (errCode != cudaSuccess) {
+        fprintf(stderr, "WARNING: A CUDA error occured: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
+    }
+
+    double overallDuration = endTime - startTimeMult;
+    printf("Overall: %.3f ms\t\t[%.3f GB/s]\n", 1000.f * overallDuration, toBW(totalBytes, overallDuration));
+
+    double transferDur = midTime1Mult - startTimeMult;
+    printf("xy array --> device %.3f ms\n", 1000.f * transferDur);
+
+    double gpu_compute_dur = midTime2Mult - midTime1Mult;
+    printf("GPU computation duration %.3f ms\n", 1000.f * gpu_compute_dur);
+
+    // TODO free memory buffers on the GPU
+    cudaFree(d_x);
+	cudaFree(d_y);
+	cudaFree(d_result);
+
+}
+
 void faxpyCPU(int N, float alpha, float *xarray, float *yarray, float *resultarray) {
     double startTime = currentSeconds();
     for (int i = 0; i < N; i++) {
@@ -180,6 +248,7 @@ int main(int argc, char** argv)
     float* xarray = (float *)malloc(sizeof(float)*N);
     float* yarray = (float *)malloc(sizeof(float)*N);
     float* resultarray = (float *)malloc(sizeof(float)*N);
+	float* resultarraySingle = (float *)malloc(sizeof(float)*N);
     float* checkarray = (float *)malloc(sizeof(float)*N);
 
     for (int i=0; i<N; i++) {
@@ -189,6 +258,7 @@ int main(int argc, char** argv)
     }
 
     faxpyCudaMULT(N, alpha, xarray, yarray, resultarray);
+	faxpyCudaSingle(N, alpha, xarray, yarray, resultarraySingle);
 
     faxpyCPU(N, alpha, xarray, yarray, checkarray);
 
@@ -201,6 +271,15 @@ int main(int argc, char** argv)
       }
     }
     printf("device faxpy outputs are correct!\n");
+
+	for (int i = 0; i < N; i++) {
+		if (notEqual(checkarray[i], resultarraySingle[i])) {
+			fprintf(stderr, "Error: device axpy outputs incorrect result."
+				" A[%d] = %.5f, expecting %.5f.\n", i, resultarraySingle[i], checkarray[i]);
+			exit(1);
+		}
+	}
+	printf("single block faxpy outputs are correct!\n");
 
     free(xarray);
     free(yarray);
