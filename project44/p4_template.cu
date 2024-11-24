@@ -107,9 +107,9 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     //
     // TODO allocate device memory buffers on the GPU using cudaMalloc
     //
-    x = cudaMalloc((void **)&d_x, sizeof(float) * N);
-	y = cudaMalloc((void **)&d_y, sizeof(float) * N);
-	result = cudaMalloc((void **)&d_result, sizeof(float) * N);
+    x = cudaMalloc(&d_x, sizeof(float) * N);
+	y = cudaMalloc(&d_y, sizeof(float) * N);
+	result = cudaMalloc(&d_result, sizeof(float) * N);
 
     // start timing after allocation of device memory
     double startTime = currentSeconds();
