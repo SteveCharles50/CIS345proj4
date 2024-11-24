@@ -101,9 +101,8 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     const int threadsPerBlock = 512;
     const int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
 
-    float* x;
-    float* y;
-    float* result;
+    float* x, y, result;
+    float* d_x, d_y, d_result;
 
     //
     // TODO allocate device memory buffers on the GPU using cudaMalloc
