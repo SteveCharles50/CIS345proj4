@@ -93,7 +93,7 @@ __global__ void faxpy_mblk_kernel(int N, float alpha, float* x, float* y, float*
 
 }
 
-void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultarray) {
+void faxpyCudaMULT(int N, float alpha, float* xarray, float* yarray, float* resultarray) {
 
     int totalBytes = sizeof(float) * 3 * N;
 
@@ -111,7 +111,7 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
 	cudaMalloc((void**)&d_result, sizeof(float) * N);
 
     // start timing after allocation of device memory
-    double startTime = currentSeconds();
+    double startTimeMult = currentSeconds();
 
     //
     // TODO copy input arrays to the GPU using cudaMemcpy
@@ -120,7 +120,7 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
 	cudaMemcpy(d_x, xarray, sizeof(float) * N, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_y, yarray, sizeof(float) * N, cudaMemcpyHostToDevice);
 
-    double midTime1 = currentSeconds();
+    double midTime1Mult = currentSeconds();
 
     //
     // TODO run kernel, either 1-block kernel or multi-block kernel
@@ -129,7 +129,7 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     // IMPORTANT, wait for the completion at GPU
     cudaDeviceSynchronize();
 
-    double midTime2 = currentSeconds();
+    double midTime2Mult = currentSeconds();
 
     //
     // TODO copy result from GPU using cudaMemcpy
@@ -144,13 +144,13 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
         fprintf(stderr, "WARNING: A CUDA error occured: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
     }
 
-    double overallDuration = endTime - startTime;
+    double overallDuration = endTime - startTimeMult;
     printf("Overall: %.3f ms\t\t[%.3f GB/s]\n", 1000.f * overallDuration, toBW(totalBytes, overallDuration));
 
-    double transferDur = midTime1 - startTime;
+    double transferDur = midTime1Mult - startTimeMult;
     printf("xy array --> device %.3f ms\n", 1000.f * transferDur);
 
-    double gpu_compute_dur = midTime2 - midTime1;
+    double gpu_compute_dur = midTime2Mult - midTime1Mult;
     printf("GPU computation duration %.3f ms\n", 1000.f * gpu_compute_dur);
 
     // TODO free memory buffers on the GPU
@@ -188,7 +188,7 @@ int main(int argc, char** argv)
         resultarray[i] = 0.f;
     }
 
-    faxpyCuda(N, alpha, xarray, yarray, resultarray);
+    faxpyCudaMULT(N, alpha, xarray, yarray, resultarray);
 
     faxpyCPU(N, alpha, xarray, yarray, checkarray);
 
