@@ -125,7 +125,7 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     //
     // TODO run kernel, either 1-block kernel or multi-block kernel
     //
-	faxpy_1blk_kernel<<<1,threadsPerBlock>>>(N, alpha, d_x, d_y, d_result);
+	faxpy_mblk_kernel<<<blocks,threadsPerBlock>>>(N, alpha, d_x, d_y, d_result);
     // IMPORTANT, wait for the completion at GPU
     cudaDeviceSynchronize();
 
