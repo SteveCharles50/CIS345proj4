@@ -74,7 +74,7 @@ __global__ void faxpy_1blk_kernel(int N, float alpha, float *x, float *y, float 
     // TODO insert your CUDA kernel code here
     // TODO one block of threads
     for(int i = 0; i < N; i++){
-		result[i] = float * x[i] + y[i];
+		result[i] = alpha * x[i] + y[i];
     }
 }
 
@@ -84,7 +84,7 @@ __global__ void faxpy_mblk_kernel(int N, float alpha, float* x, float* y, float*
     // TODO multi-blocks of threads
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if(tid < N){
-      result[tid] = float * x[tid] + y[tid];
+      result[tid] = alpha * x[tid] + y[tid];
     }
 
 
@@ -107,9 +107,9 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     //
     // TODO allocate device memory buffers on the GPU using cudaMalloc
     //
-    cudaMalloc((void **)&d_x, sizeof(float) * N);
-	cudaMalloc((void **)&d_y, sizeof(float) * N);
-	cudaMalloc((void **)&d_result, sizeof(float) * N);
+    int x = cudaMalloc((void **)&d_x, sizeof(float) * N);
+	int y = cudaMalloc((void **)&d_y, sizeof(float) * N);
+	int result = cudaMalloc((void **)&d_result, sizeof(float) * N);
 
     // start timing after allocation of device memory
     double startTime = currentSeconds();
@@ -126,7 +126,7 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     //
     // TODO run kernel, either 1-block kernel or multi-block kernel
     //
-	faxpy_1blk_kernel<<<1,threadsPerBlock>>>(d_result, alpha, d_x, d_y, d_result);
+	faxpy_1blk_kernel<<<1,threadsPerBlock>>>(N, d_result, alpha, d_x, d_y, d_result);
     // IMPORTANT, wait for the completion at GPU
     cudaDeviceSynchronize();
 
