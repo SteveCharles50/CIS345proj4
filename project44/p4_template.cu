@@ -151,7 +151,7 @@ void faxpyCudaMULT(int N, float alpha, float* xarray, float* yarray, float* resu
     printf("xy array --> device %.3f ms\n", 1000.f * transferDur);
 
     double gpu_compute_dur = midTime2Mult - midTime1Mult;
-    printf("GPU computation duration using multiple blocks%.3f ms\n", 1000.f * gpu_compute_dur);
+    printf("GPU computation duration using multiple blocks %.3f ms\n", 1000.f * gpu_compute_dur);
 
     // TODO free memory buffers on the GPU
     cudaFree(d_x);
@@ -219,7 +219,7 @@ void faxpyCudaSingle(int N, float alpha, float* xarray, float* yarray, float* re
     printf("xy array --> device %.3f ms\n", 1000.f * transferDur);
 
     double gpu_compute_dur = midTime2Mult - midTime1Mult;
-    printf("GPU computation duration using single block%.3f ms\n", 1000.f * gpu_compute_dur);
+    printf("GPU computation duration using single block %.3f ms\n", 1000.f * gpu_compute_dur);
 
     // TODO free memory buffers on the GPU
     cudaFree(d_x);
