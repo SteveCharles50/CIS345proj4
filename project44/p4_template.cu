@@ -258,11 +258,11 @@ int main(int argc, char** argv)
     }
 
     faxpyCudaMULT(N, alpha, xarray, yarray, resultarray);
-    cout << endl;
-    cout << endl;
+	printf("\n");
+	printf("\n");
 	faxpyCudaSingle(N, alpha, xarray, yarray, resultarraySingle);
-	cout << endl;
-	cout << endl;
+	printf("\n");
+	printf("\n");
     faxpyCPU(N, alpha, xarray, yarray, checkarray);
 
     // Verify the FAXPY computatin at GPU is correct
