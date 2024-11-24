@@ -73,12 +73,23 @@ float toBW(int bytes, float sec) {
 __global__ void faxpy_1blk_kernel(int N, float alpha, float *x, float *y, float *result) {
     // TODO insert your CUDA kernel code here
     // TODO one block of threads
+    for(int i = 0; i < N; i++){
+		result[i] = float * x[i] + y[i];
+    }
 }
 
 __global__ void faxpy_mblk_kernel(int N, float alpha, float* x, float* y, float* result) {
 
     // TODO insert your CUDA kernel code here
     // TODO multi-blocks of threads
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if(tid < N){
+      out[tid] = float * x[tid] + y[tid];
+    }
+
+
+
+
 }
 
 void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultarray) {
