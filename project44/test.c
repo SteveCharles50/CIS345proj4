@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#define N 10000000
+#define N 1000000000
 #define THREADS_PER_BLOCK 256
 
 // Function to perform vector addition

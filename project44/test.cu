@@ -3,7 +3,7 @@
 #include <time.h>
 #include <cuda_runtime.h>
 
-#define N 10000000
+#define N 1000000000
 #define THREADS_PER_BLOCK 1024
 
 __global__ void vector_add(float *out, float *a, float *b, int n) {
