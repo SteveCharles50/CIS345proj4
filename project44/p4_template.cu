@@ -96,7 +96,9 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     //
     // TODO allocate device memory buffers on the GPU using cudaMalloc
     //
-
+    cudaMalloc((void **)&d_x, sizeof(float) * N);
+	cudaMalloc((void **)&d_y, sizeof(float) * N);
+	cudaMalloc((void **)&d_result, sizeof(float) * N);
 
     // start timing after allocation of device memory
     double startTime = currentSeconds();
@@ -105,12 +107,15 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     // TODO copy input arrays to the GPU using cudaMemcpy
     //
 
+    cudaMemcpy(d_x, x, sizeof(float) * N, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_y, y, sizeof(float) * N, cudaMemcpyHostToDevice);
+
     double midTime1 = currentSeconds();
 
     //
     // TODO run kernel, either 1-block kernel or multi-block kernel
     //
-
+	faxpy_1blk_kernel<<<1,threadsPerBlock>>>(result, d_result, sizeof(float) *N, cudaMemcpyDeviceToHost);
     // IMPORTANT, wait for the completion at GPU
     cudaDeviceSynchronize();
 
@@ -119,6 +124,7 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     //
     // TODO copy result from GPU using cudaMemcpy
     //
+	cudaMemcpy(d_result, result, sizeof(float) * N, cudaMemcpyHostToDevice);
 
     // end timing after result has been copied back into host memory
     double endTime = currentSeconds();
@@ -138,6 +144,9 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     printf("GPU computation duration %.3f ms\n", 1000.f * gpu_compute_dur);
 
     // TODO free memory buffers on the GPU
+    cudaFree(d_x);
+	cudaFree(d_y);
+	cudaFree(d_result);
 
 }
 
