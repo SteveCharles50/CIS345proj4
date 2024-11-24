@@ -101,15 +101,15 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     const int threadsPerBlock = 512;
     const int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
 
-    void* x, y, result;
-    float* d_x, d_y, d_result;
+    const void* x, y, result;
+	float *d_x, *d_y, *d_result;
 
     //
     // TODO allocate device memory buffers on the GPU using cudaMalloc
     //
-    x = cudaMalloc(&d_x, sizeof(float) * N);
-	y = cudaMalloc(&d_y, sizeof(float) * N);
-	result = cudaMalloc(&d_result, sizeof(float) * N);
+	cudaMalloc((void**)&d_x, sizeof(float) * N);
+	cudaMalloc((void**)&d_y, sizeof(float) * N);
+	cudaMalloc((void**)&d_result, sizeof(float) * N);
 
     // start timing after allocation of device memory
     double startTime = currentSeconds();
@@ -118,8 +118,8 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     // TODO copy input arrays to the GPU using cudaMemcpy
     //
 
-    cudaMemcpy(d_x, x, sizeof(float) * N, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_y, y, sizeof(float) * N, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_x, xarray, sizeof(float) * N, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_y, yarray, sizeof(float) * N, cudaMemcpyHostToDevice);
 
     double midTime1 = currentSeconds();
 
@@ -135,7 +135,7 @@ void faxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     //
     // TODO copy result from GPU using cudaMemcpy
     //
-	cudaMemcpy(d_result, result, sizeof(float) * N, cudaMemcpyHostToDevice);
+	cudaMemcpy(resultarray, d_result, sizeof(float) * N, cudaMemcpyDeviceToHost);
 
     // end timing after result has been copied back into host memory
     double endTime = currentSeconds();
