@@ -167,7 +167,6 @@ void faxpyCudaSingle(int N, float alpha, float* xarray, float* yarray, float* re
 
     // compute number of blocks and threads per block
     const int threadsPerBlock = 512;
-    const int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
 
 	float *d_x, *d_y, *d_result;
 
