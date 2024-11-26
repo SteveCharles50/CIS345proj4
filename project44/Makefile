@@ -4,6 +4,7 @@ FILE = p4_template.cu
 
 $(TARGET): $(SRC)
 	$(NVCC) -o $(TARGET) $(FILE)
+	./$(TARGET)
 
 # Clean up
 clean:
